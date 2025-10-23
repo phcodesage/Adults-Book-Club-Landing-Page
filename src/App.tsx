@@ -22,7 +22,7 @@ function App() {
 
             <div className="flex justify-center my-8">
               <img
-                src="/public/image.png"
+                src="/image.png"
                 alt="Adults reading books together"
                 className="rounded-lg shadow-md max-w-full h-auto"
               />
