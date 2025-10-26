@@ -21,11 +21,25 @@ function App() {
             </div>
 
             <div className="flex justify-center my-8">
-              <img
-                src="/image.png"
-                alt="Adults reading books together"
-                className="rounded-lg shadow-md max-w-full h-auto"
-              />
+              <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md">
+                <img
+                  src="/adults-book-club.webp"
+                  alt="Adults reading books together"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="text-center mt-8 mb-12">
+              <a
+                href="https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00"
+                className="inline-block px-8 py-4 text-xl font-semibold text-white rounded-lg shadow-lg transition-transform hover:scale-105"
+                style={{ backgroundColor: '#ca3433' }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Join Now
+              </a>
             </div>
 
             <div className="space-y-10 mt-12">
