@@ -7,7 +7,7 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-3">
             <BookOpen className="text-white" size={40} />
-            <h1 className="text-4xl font-bold text-white tracking-wide">BOOK CLUB</h1>
+            <h1 className="text-4xl font-bold text-white tracking-wide">ADULTS BOOK CLUB</h1>
           </div>
         </div>
       </header>
@@ -31,6 +31,9 @@ function App() {
             </div>
 
             <div className="text-center mt-8 mb-12">
+              <p className="text-2xl font-bold mb-3" style={{ color: '#0e1f3e' }}>
+                $50 Monthly
+              </p>
               <a
                 href="https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00"
                 className="inline-block px-8 py-4 text-xl font-semibold text-white rounded-lg shadow-lg transition-transform hover:scale-105"
@@ -78,7 +81,12 @@ function App() {
 
             <div className="mt-10 text-center p-6 rounded-lg" style={{ backgroundColor: '#f7e0e0' }}>
               <p className="text-lg italic" style={{ color: '#0e1f3e' }}>
-                Share your takeaways, learn from others' insights, and ignite your brilliance through shared literary journeys.
+              Connect with fellow readers,
+gain fresh perspectives, and
+share how the book's themes
+truly relate to your life.
+It's where great reading helps
+you Ignite Your Brilliance!
               </p>
             </div>
           </div>
