@@ -1,9 +1,32 @@
 import { BookOpen, Calendar, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Lenis from 'lenis';
 
 function App() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
+
+  useEffect(() => {
+    // Initialize Lenis
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    // Animation frame loop
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    // Cleanup
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f7e0e0' }}>
       <header className="py-6" style={{ backgroundColor: '#ca3433' }}>
@@ -26,11 +49,11 @@ function App() {
             <div className="flex justify-center my-8">
               <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md">
                 <img
-                  src="/adults-book-club.webp"
+                  src="/adults-book-club.png"
                   alt="Adults reading books together"
                   className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => {
-                    setModalImageSrc('/adults-book-club.webp');
+                    setModalImageSrc('/adults-book-club.png');
                     setIsImageModalOpen(true);
                   }}
                 />
@@ -53,34 +76,7 @@ function App() {
             </div>
 
             <div className="space-y-10 mt-12">
-              <div className="bg-white border-2 rounded-lg p-6 shadow-md" style={{ borderColor: '#0e1f3e' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <Calendar className="text-white p-2 rounded" style={{ backgroundColor: '#ca3433' }} size={40} />
-                  <h3 className="text-2xl font-bold" style={{ color: '#ca3433' }}>NOVEMBER</h3>
-                </div>
-                <div className="flex items-start gap-6 ml-14">
-                  <div className="flex-shrink-0">
-                    <img
-                      src="/living-life-as-a-thank-you.jpg"
-                      alt="Living Life as a Thank You book cover"
-                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => {
-                        setModalImageSrc('/living-life-as-a-thank-you.jpg');
-                        setIsImageModalOpen(true);
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xl font-semibold mb-3" style={{ color: '#0e1f3e' }}>
-                      "Living Life as a Thank You"
-                    </p>
-                    <div className="flex items-center gap-2 text-lg" style={{ color: '#0e1f3e' }}>
-                      <span className="font-medium">Meetings:</span>
-                      <span>Nov. 11 and Nov 25, 6pm</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
 
               <div className="bg-white border-2 rounded-lg p-6 shadow-md" style={{ borderColor: '#0e1f3e' }}>
                 <div className="flex items-center gap-3 mb-4">
@@ -105,7 +101,7 @@ function App() {
                     </p>
                     <div className="flex items-center gap-2 text-lg" style={{ color: '#0e1f3e' }}>
                       <span className="font-medium">Meetings:</span>
-                      <span>Dec 15 and Dec 29, at 6pm</span>
+                      <span>Dec 8 and Dec 29, at 6pm</span>
                     </div>
                   </div>
                 </div>
@@ -146,12 +142,12 @@ function App() {
 
             <div className="mt-10 text-center p-6 rounded-lg" style={{ backgroundColor: '#f7e0e0' }}>
               <p className="text-lg italic" style={{ color: '#0e1f3e' }}>
-              Connect with fellow readers,
-gain fresh perspectives, and
-share how the book's themes
-truly relate to your life.
-It's where great reading helps
-you Ignite Your Brilliance!
+                Connect with fellow readers,
+                gain fresh perspectives, and
+                share how the book's themes
+                truly relate to your life.
+                It's where great reading helps
+                you Ignite Your Brilliance!
               </p>
             </div>
           </div>
@@ -160,7 +156,7 @@ you Ignite Your Brilliance!
 
       {/* Image Modal */}
       {isImageModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
           onClick={() => setIsImageModalOpen(false)}
         >
