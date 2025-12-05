@@ -27,19 +27,48 @@ function App() {
       lenis.destroy();
     };
   }, []);
+
+  // Prevent scrolling when modal is open
+  useEffect(() => {
+    if (isImageModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isImageModalOpen]);
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f7e0e0' }}>
-      <header className="py-6" style={{ backgroundColor: '#ca3433' }}>
+    <div className="min-h-screen bg-overlay" style={{
+      backgroundImage: 'url(/bg.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      <header className="py-8 shadow-premium" style={{ backgroundColor: '#ca3433' }}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-3">
-            <BookOpen className="text-white" size={40} />
-            <h1 className="text-4xl font-bold text-white tracking-wide">ADULTS BOOK CLUB</h1>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <img
+              src="/Exceed-learning-center-1920w.png"
+              alt="Exceed Learning Center"
+              className="h-16 object-contain"
+            />
+            <div className="flex items-center justify-center gap-3">
+              <BookOpen className="text-white" size={40} />
+              <h1 className="text-4xl font-bold text-white tracking-wide text-shadow-soft">ADULTS BOOK CLUB</h1>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ borderTop: '4px solid #0e1f3e' }}>
+        <div className="bg-white rounded-lg shadow-premium overflow-hidden animate-fadeIn backdrop-blur-soft" style={{ borderTop: '4px solid #0e1f3e' }}>
           <div className="p-8">
             <div className="text-center mb-8">
               <h2 className="text-5xl font-bold mb-2" style={{ color: '#0e1f3e' }}>Adults</h2>
@@ -66,7 +95,7 @@ function App() {
               </p>
               <a
                 href="https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00"
-                className="inline-block px-8 py-4 text-xl font-semibold text-white rounded-lg shadow-lg transition-transform hover:scale-105"
+                className="inline-block px-8 py-4 text-xl font-semibold text-white rounded-lg shadow-premium transition-smooth hover:scale-105 hover:shadow-premium-hover"
                 style={{ backgroundColor: '#ca3433' }}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -76,9 +105,38 @@ function App() {
             </div>
 
             <div className="space-y-10 mt-12">
+              {/* January Book Club */}
+              <div className="bg-white border-2 rounded-lg p-6 card-premium" style={{ borderColor: '#0e1f3e' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <Calendar className="text-white p-2 rounded" style={{ backgroundColor: '#ca3433' }} size={40} />
+                  <h3 className="text-2xl font-bold" style={{ color: '#ca3433' }}>JANUARY</h3>
+                </div>
+                <div className="flex items-start gap-6 ml-14">
+                  <div className="flex-shrink-0">
+                    <img
+                      src="/salt,sugar&fat.jpg"
+                      alt="Salt, Sugar, Fat book cover"
+                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-smooth"
+                      onClick={() => {
+                        setModalImageSrc('/salt,sugar&fat.jpg');
+                        setIsImageModalOpen(true);
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xl font-semibold mb-3" style={{ color: '#0e1f3e' }}>
+                      "Salt, Sugar, Fat"
+                    </p>
+                    <div className="flex items-center gap-2 text-lg" style={{ color: '#0e1f3e' }}>
+                      <span className="font-medium">Meetings:</span>
+                      <span>Jan 12 and Jan 26, at 6pm</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-
-              <div className="bg-white border-2 rounded-lg p-6 shadow-md" style={{ borderColor: '#0e1f3e' }}>
+              {/* December Book Club */}
+              <div className="bg-white border-2 rounded-lg p-6 card-premium" style={{ borderColor: '#0e1f3e' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <Calendar className="text-white p-2 rounded" style={{ backgroundColor: '#ca3433' }} size={40} />
                   <h3 className="text-2xl font-bold" style={{ color: '#ca3433' }}>DECEMBER</h3>
@@ -88,7 +146,7 @@ function App() {
                     <img
                       src="/the-magic-of-believing-1.jpg"
                       alt="The Magic of Believing book cover"
-                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-opacity"
+                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-smooth"
                       onClick={() => {
                         setModalImageSrc('/the-magic-of-believing-1.jpg');
                         setIsImageModalOpen(true);
@@ -107,7 +165,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="bg-white border-2 rounded-lg p-6 shadow-md opacity-75" style={{ borderColor: '#0e1f3e' }}>
+              {/* Additional & Optional */}
+              <div className="bg-white border-2 rounded-lg p-6 card-premium opacity-75" style={{ borderColor: '#0e1f3e' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <BookOpen className="text-white p-2 rounded" style={{ backgroundColor: '#ca3433' }} size={40} />
                   <h3 className="text-2xl font-bold" style={{ color: '#ca3433' }}>ADDITIONAL & OPTIONAL</h3>
@@ -117,7 +176,7 @@ function App() {
                     <img
                       src="/hostage-book-cover.png"
                       alt="Hostage by Eli Sharabi book cover"
-                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-opacity"
+                      className="w-24 h-32 object-cover rounded shadow-md cursor-pointer hover:opacity-80 transition-smooth"
                       onClick={() => {
                         setModalImageSrc('/hostage-book-cover.png');
                         setIsImageModalOpen(true);
@@ -140,7 +199,7 @@ function App() {
               </div>
             </div>
 
-            <div className="mt-10 text-center p-6 rounded-lg" style={{ backgroundColor: '#f7e0e0' }}>
+            <div className="mt-10 text-center p-6 rounded-lg shadow-md" style={{ backgroundColor: 'rgba(247, 224, 224, 0.95)' }}>
               <p className="text-lg italic" style={{ color: '#0e1f3e' }}>
                 Connect with fellow readers,
                 gain fresh perspectives, and
@@ -160,25 +219,31 @@ function App() {
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
           onClick={() => setIsImageModalOpen(false)}
         >
-          <div className="relative max-w-2xl max-h-full">
+          <div className="relative flex items-center justify-center w-full h-full">
             <button
               onClick={() => setIsImageModalOpen(false)}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2 z-10"
+              aria-label="Close modal"
             >
               <X size={32} />
             </button>
             <img
               src={modalImageSrc}
               alt="Enlarged view"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
       )}
 
-      <footer className="py-6 mt-12" style={{ backgroundColor: '#0e1f3e' }}>
+      <footer className="py-8 mt-12 shadow-premium" style={{ backgroundColor: '#0e1f3e' }}>
         <div className="container mx-auto px-4 text-center">
+          <img
+            src="/Exceed-learning-center-1920w.png"
+            alt="Exceed Learning Center"
+            className="h-12 object-contain mx-auto mb-4 opacity-80"
+          />
           <p className="text-white text-sm">
             Join us for engaging conversations and meaningful connections
           </p>
