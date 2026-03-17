@@ -1,21 +1,163 @@
 import { BookOpen, Calendar, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Lenis from 'lenis';
+
+type BookSelection = {
+  monthLabel: string;
+  monthIndex: number;
+  year: number;
+  imageSrc: string;
+  imageAlt: string;
+  title: string;
+  author: string;
+  schedule: string;
+};
+
+const registrationLink = 'https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00';
+
+const adultBookSelections: BookSelection[] = [
+  {
+    monthLabel: 'JANUARY 2026',
+    monthIndex: 0,
+    year: 2026,
+    imageSrc: '/the-mind-gut-connection.jpg',
+    imageAlt: 'The Mind-Gut Connection book cover',
+    title: '"Mind - Gut Connection"',
+    author: 'Dr. Emeran Mayer',
+    schedule: 'Jan 12 & 26, 6pm',
+  },
+  {
+    monthLabel: 'FEBRUARY 2026',
+    monthIndex: 1,
+    year: 2026,
+    imageSrc: '/the-book-of-joy.jpg',
+    imageAlt: 'The Book of Joy book cover',
+    title: '"The Book of Joy"',
+    author: 'Dalai Lama & Desmond Tutu',
+    schedule: 'Feb 9 & 23, 6pm',
+  },
+  {
+    monthLabel: 'MARCH 2026',
+    monthIndex: 2,
+    year: 2026,
+    imageSrc: '/atlas-of-the-heart.jpg',
+    imageAlt: 'Atlas of the Heart book cover',
+    title: '"Atlas of the Heart"',
+    author: 'Brené Brown',
+    schedule: 'Mar 9 & 30, 6pm',
+  },
+  {
+    monthLabel: 'APRIL 2026',
+    monthIndex: 3,
+    year: 2026,
+    imageSrc: '/grit.jpg',
+    imageAlt: 'Grit book cover',
+    title: '"Grit"',
+    author: 'Angela Duckworth',
+    schedule: 'Apr 13 & 27, 6pm',
+  },
+  {
+    monthLabel: 'MAY 2026',
+    monthIndex: 4,
+    year: 2026,
+    imageSrc: '/the-sacred-rest.jpg',
+    imageAlt: 'Sacred Rest book cover',
+    title: '"Sacred Rest"',
+    author: 'Sandra Dalton-Smith',
+    schedule: 'May 11 & 25, 6pm',
+  },
+  {
+    monthLabel: 'JUNE 2026',
+    monthIndex: 5,
+    year: 2026,
+    imageSrc: '/set-bounderies-find-peace.jpg',
+    imageAlt: 'Set Boundaries, Find Peace book cover',
+    title: '"Set Boundaries, Find Peace"',
+    author: 'Nedra Glover Tawwab',
+    schedule: 'Jun 8 & 29, 6pm',
+  },
+  {
+    monthLabel: 'JULY 2026',
+    monthIndex: 6,
+    year: 2026,
+    imageSrc: '/good-inside.jpg',
+    imageAlt: 'Good Inside book cover',
+    title: '"Good Inside"',
+    author: 'Dr. Becky Kennedy',
+    schedule: 'Jul 13 & 27, 6pm',
+  },
+  {
+    monthLabel: 'AUGUST 2026',
+    monthIndex: 7,
+    year: 2026,
+    imageSrc: '/braving-the-wilderness.jpg',
+    imageAlt: 'Braving the Wilderness book cover',
+    title: '"Braving the Wilderness"',
+    author: 'Brené Brown',
+    schedule: 'Aug 10 & 31, 6pm',
+  },
+  {
+    monthLabel: 'SEPTEMBER 2026',
+    monthIndex: 8,
+    year: 2026,
+    imageSrc: '/money-magic.webp',
+    imageAlt: 'Money Magic book cover',
+    title: '"Money Magic"',
+    author: 'Laurence Kotlikoff',
+    schedule: 'Sep 14 & 28, 6pm',
+  },
+  {
+    monthLabel: 'OCTOBER 2026',
+    monthIndex: 9,
+    year: 2026,
+    imageSrc: '/the-lean-startup.jpg',
+    imageAlt: 'The Lean Startup book cover',
+    title: '"The Lean Startup"',
+    author: 'Eric Ries',
+    schedule: 'Oct 12 & 26, 6pm',
+  },
+  {
+    monthLabel: 'NOVEMBER 2026',
+    monthIndex: 10,
+    year: 2026,
+    imageSrc: '/the-desciplined-pursuit-of-less.jpg',
+    imageAlt: 'Essentialism book cover',
+    title: '"Essentialism"',
+    author: 'Greg McKeown',
+    schedule: 'Nov 9 & 30, 6pm',
+  },
+  {
+    monthLabel: 'DECEMBER 2026',
+    monthIndex: 11,
+    year: 2026,
+    imageSrc: '/your-best-year-ever.jpg',
+    imageAlt: 'Your Best Year Ever book cover',
+    title: '"Your Best Year Ever"',
+    author: 'Michael Hyatt',
+    schedule: 'Dec 14 & 28, 6pm',
+  },
+];
+
+function hasMonthPassed(year: number, monthIndex: number) {
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonthStart = new Date(year, monthIndex + 1, 1);
+
+  return nextMonthStart <= currentMonthStart;
+}
 
 function App() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
 
   useEffect(() => {
-    // Initialize Lenis
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
 
-    // Animation frame loop
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -23,13 +165,11 @@ function App() {
 
     requestAnimationFrame(raf);
 
-    // Cleanup
     return () => {
       lenis.destroy();
     };
   }, []);
 
-  // Prevent scrolling when modal is open
   useEffect(() => {
     if (isImageModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -45,13 +185,30 @@ function App() {
     };
   }, [isImageModalOpen]);
 
+  const nextOpenMonth = adultBookSelections.find(
+    (selection) => !hasMonthPassed(selection.year, selection.monthIndex)
+  );
+  const registrationClosed = !nextOpenMonth;
+
+  const openImageModal = (imageSrc: string) => {
+    setModalImageSrc(imageSrc);
+    setIsImageModalOpen(true);
+  };
+
+  const openRegistration = () => {
+    window.open(registrationLink, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <div className="min-h-screen bg-overlay" style={{
-      backgroundImage: 'url(/bg.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div
+      className="min-h-screen bg-overlay"
+      style={{
+        backgroundImage: 'url(/bg.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       <header className="py-8 shadow-premium" style={{ backgroundColor: '#ca3433' }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center gap-4">
@@ -68,407 +225,121 @@ function App() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-6xl">
-        <div className="bg-white rounded-lg shadow-premium overflow-hidden animate-fadeIn backdrop-blur-soft" style={{ borderTop: '4px solid #0e1f3e' }}>
+      <main className="container mx-auto max-w-6xl px-4 py-12">
+        <div
+          className="animate-fadeIn overflow-hidden rounded-lg bg-white shadow-premium backdrop-blur-soft"
+          style={{ borderTop: '4px solid #0e1f3e' }}
+        >
           <div className="p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-5xl font-bold mb-2" style={{ color: '#0e1f3e' }}>Adults</h2>
-              <div className="w-24 h-1 mx-auto mt-4" style={{ backgroundColor: '#ca3433' }}></div>
+            <div className="mb-8 text-center">
+              <h2 className="mb-2 text-5xl font-bold" style={{ color: '#0e1f3e' }}>Adults</h2>
+              <div className="mx-auto mt-4 h-1 w-24" style={{ backgroundColor: '#ca3433' }}></div>
             </div>
 
-            <div className="flex justify-center my-8">
-              <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md">
+            <div className="my-8 flex justify-center">
+              <div className="aspect-[16/9] w-full overflow-hidden rounded-lg shadow-md">
                 <img
                   src="/adults-book-club.jpg"
                   alt="Adults reading books together"
-                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => {
-                    setModalImageSrc('/adults-book-club.jpg');
-                    setIsImageModalOpen(true);
-                  }}
+                  className="h-full w-full cursor-pointer object-cover transition-opacity hover:opacity-90"
+                  onClick={() => openImageModal('/adults-book-club.jpg')}
                 />
               </div>
             </div>
 
-            <div className="text-center mt-8 mb-12">
-              <p className="text-2xl font-bold mb-3" style={{ color: '#0e1f3e' }}>
+            <div className="mb-12 mt-8 text-center">
+              <p className="mb-3 text-2xl font-bold" style={{ color: '#0e1f3e' }}>
                 $50 Monthly
               </p>
-              <a
-                href="https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00"
-                className="inline-block px-8 py-4 text-xl font-semibold text-white rounded-lg shadow-premium transition-smooth hover:scale-105 hover:shadow-premium-hover"
-                style={{ backgroundColor: '#ca3433' }}
-                target="_blank"
-                rel="noopener noreferrer"
+              <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em]" style={{ color: '#0e1f3e' }}>
+                {registrationClosed
+                  ? 'All listed 2026 sessions have closed.'
+                  : `Registration is open for ${nextOpenMonth.monthLabel}.`}
+              </p>
+              <button
+                type="button"
+                onClick={openRegistration}
+                disabled={registrationClosed}
+                className={`inline-flex rounded-lg px-8 py-4 text-xl font-semibold transition-smooth ${
+                  registrationClosed
+                    ? 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
+                    : 'text-white shadow-premium hover:scale-105 hover:shadow-premium-hover'
+                }`}
+                style={registrationClosed ? undefined : { backgroundColor: '#ca3433' }}
               >
-                Join Now
-              </a>
+                {registrationClosed ? 'Registration Closed' : 'Join Now'}
+              </button>
             </div>
 
-            {/* Books Gallery Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-              {/* January 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/the-mind-gut-connection.jpg"
-                    alt="The Mind-Gut Connection book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/the-mind-gut-connection.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    JANUARY 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Mind – Gut Connection"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Dr. Emeran Mayer
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Jan 12 & 26, 6pm</span>
-                  </div>
-                </div>
-              </div>
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {adultBookSelections.map((selection) => {
+                const isPastMonth = hasMonthPassed(selection.year, selection.monthIndex);
 
-              {/* February 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/the-book-of-joy.jpg"
-                    alt="The Book of Joy book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/the-book-of-joy.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    FEBRUARY 2026
+                return (
+                  <div
+                    key={selection.monthLabel}
+                    className={`overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 ${
+                      isPastMonth
+                        ? 'bg-slate-100/95 opacity-60 grayscale'
+                        : 'bg-white hover:-translate-y-1 hover:shadow-2xl'
+                    }`}
+                    style={{ borderColor: isPastMonth ? 'rgba(14, 31, 62, 0.28)' : '#0e1f3e' }}
+                  >
+                    <div className="relative">
+                      <img
+                        src={selection.imageSrc}
+                        alt={selection.imageAlt}
+                        className={`h-64 w-full object-cover transition-opacity ${
+                          isPastMonth ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-90'
+                        }`}
+                        onClick={isPastMonth ? undefined : () => openImageModal(selection.imageSrc)}
+                        aria-disabled={isPastMonth}
+                      />
+                      <div
+                        className="absolute left-3 top-3 rounded-full px-3 py-1 text-sm font-bold text-white"
+                        style={{ backgroundColor: isPastMonth ? '#64748b' : '#ca3433' }}
+                      >
+                        {selection.monthLabel}
+                      </div>
+                      {isPastMonth && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
+                          <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-800">
+                            Month Passed
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="mb-1 text-lg font-bold" style={{ color: '#0e1f3e' }}>
+                        {selection.title}
+                      </h3>
+                      <p className="mb-2 text-sm" style={{ color: '#666' }}>
+                        by {selection.author}
+                      </p>
+                      <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
+                        <Calendar size={16} style={{ color: '#ca3433' }} />
+                        <span>{selection.schedule}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openRegistration}
+                        disabled={isPastMonth}
+                        className={`mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold transition-smooth ${
+                          isPastMonth
+                            ? 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
+                            : 'text-white shadow-premium hover:scale-[1.02] hover:shadow-premium-hover'
+                        }`}
+                        style={isPastMonth ? undefined : { backgroundColor: '#ca3433' }}
+                      >
+                        {isPastMonth ? 'Registration Closed' : 'Reserve Your Spot'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "The Book of Joy"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Dalai Lama & Desmond Tutu
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Feb 9 & 23, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* March 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/atlas-of-the-heart.jpg"
-                    alt="Atlas of the Heart book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/atlas-of-the-heart.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    MARCH 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Atlas of the Heart"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Brené Brown
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Mar 9 & 30, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* April 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/grit.jpg"
-                    alt="Grit book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/grit.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    APRIL 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Grit"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Angela Duckworth
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Apr 13 & 27, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* May 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/the-sacred-rest.jpg"
-                    alt="Sacred Rest book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/the-sacred-rest.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    MAY 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Sacred Rest"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Sandra Dalton-Smith
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>May 11 & 25, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* June 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/set-bounderies-find-peace.jpg"
-                    alt="Set Boundaries, Find Peace book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/set-bounderies-find-peace.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    JUNE 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Set Boundaries, Find Peace"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Nedra Glover Tawwab
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Jun 8 & 29, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* July 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/good-inside.jpg"
-                    alt="Good Inside book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/good-inside.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    JULY 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Good Inside"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Dr. Becky Kennedy
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Jul 13 & 27, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* August 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/braving-the-wilderness.jpg"
-                    alt="Braving the Wilderness book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/braving-the-wilderness.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    AUGUST 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Braving the Wilderness"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Brené Brown
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Aug 10 & 31, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* September 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/money-magic.webp"
-                    alt="Money Magic book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/money-magic.webp');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    SEPTEMBER 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Money Magic"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Laurence Kotlikoff
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Sep 14 & 28, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* October 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/the-lean-startup.jpg"
-                    alt="The Lean Startup book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/the-lean-startup.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    OCTOBER 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "The Lean Startup"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Eric Ries
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Oct 12 & 26, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* November 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/the-desciplined-pursuit-of-less.jpg"
-                    alt="Essentialism book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/the-desciplined-pursuit-of-less.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    NOVEMBER 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Essentialism"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Greg McKeown
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Nov 9 & 30, 6pm</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* December 2026 */}
-              <div className="bg-white border-2 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#0e1f3e' }}>
-                <div className="relative">
-                  <img
-                    src="/your-best-year-ever.jpg"
-                    alt="Your Best Year Ever book cover"
-                    className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => {
-                      setModalImageSrc('/your-best-year-ever.jpg');
-                      setIsImageModalOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-sm font-bold" style={{ backgroundColor: '#ca3433' }}>
-                    DECEMBER 2026
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1" style={{ color: '#0e1f3e' }}>
-                    "Your Best Year Ever"
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: '#666' }}>
-                    by Michael Hyatt
-                  </p>
-                  <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                    <Calendar size={16} style={{ color: '#ca3433' }} />
-                    <span>Dec 14 & 28, 6pm</span>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
 
-            <div className="mt-10 text-center p-6 rounded-lg shadow-md" style={{ backgroundColor: 'rgba(247, 224, 224, 0.95)' }}>
+            <div className="mt-10 rounded-lg p-6 text-center shadow-md" style={{ backgroundColor: 'rgba(247, 224, 224, 0.95)' }}>
               <p className="text-lg italic" style={{ color: '#0e1f3e' }}>
                 Connect with fellow readers,
                 gain fresh perspectives, and
@@ -482,17 +353,16 @@ function App() {
         </div>
       </main>
 
-      {/* Image Modal - using createPortal to render outside Lenis container */}
       {isImageModalOpen && createPortal(
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[9999] p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-75 p-4"
           style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           onClick={() => setIsImageModalOpen(false)}
         >
-          <div className="relative flex items-center justify-center w-full h-full">
+          <div className="relative flex h-full w-full items-center justify-center">
             <button
               onClick={() => setIsImageModalOpen(false)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2 z-10"
+              className="absolute right-4 top-4 z-10 rounded-full bg-black bg-opacity-50 p-2 text-white transition-colors hover:text-gray-300"
               aria-label="Close modal"
             >
               <X size={32} />
@@ -500,22 +370,22 @@ function App() {
             <img
               src={modalImageSrc}
               alt="Enlarged view"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
+              className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
             />
           </div>
         </div>,
         document.body
       )}
 
-      <footer className="py-8 mt-12 shadow-premium" style={{ backgroundColor: '#0e1f3e' }}>
+      <footer className="mt-12 py-8 shadow-premium" style={{ backgroundColor: '#0e1f3e' }}>
         <div className="container mx-auto px-4 text-center">
           <img
             src="/Exceed-learning-center-1920w.png"
             alt="Exceed Learning Center"
-            className="h-12 object-contain mx-auto mb-4 opacity-80"
+            className="mx-auto mb-4 h-12 object-contain opacity-80"
           />
-          <p className="text-white text-sm">
+          <p className="text-sm text-white">
             Join us for engaging conversations and meaningful connections
           </p>
         </div>
