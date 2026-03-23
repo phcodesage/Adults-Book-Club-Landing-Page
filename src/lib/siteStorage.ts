@@ -165,7 +165,19 @@ export async function getSiteContent(): Promise<SiteContent> {
 }
 
 export async function saveSiteContent(content: SiteContent): Promise<void> {
-  await apiFetch('/api/content', { method: 'PUT', body: JSON.stringify(content) });
+  const body = JSON.stringify(content);
+
+  try {
+    await apiFetch('/api/content', { method: 'PUT', body });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('(405)') || message.includes('(403)')) {
+      await apiFetch('/api/content', { method: 'POST', body });
+      return;
+    }
+
+    throw error;
+  }
 }
 
 // ─── Media Library ────────────────────────────────────────────────────────────
