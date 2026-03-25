@@ -1,7 +1,7 @@
 'use client';
 
 import Lenis from 'lenis';
-import { BookOpen, Calendar, X } from 'lucide-react';
+import { BookOpen, Calendar, X, Phone, MapPin, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { SiteContent } from '../types';
@@ -249,10 +249,49 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
           document.body
         )}
 
-      <footer className="mt-12 py-8 shadow-premium" style={{ backgroundColor: '#0e1f3e' }}>
-        <div className="container mx-auto px-4 text-center">
-          <img src={content.logoSrc} alt="Exceed Learning Center" className="mx-auto mb-4 h-12 object-contain opacity-80" />
-          <p className="text-sm text-white">{content.footerText}</p>
+      <footer className="mt-12 py-10 shadow-premium" style={{ backgroundColor: '#0e1f3e' }}>
+        <div className="container mx-auto px-4">
+          <div className="mb-10 grid grid-cols-1 gap-8 border-b border-white/10 pb-10 md:grid-cols-3">
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-white/5 shadow-lg transition-transform hover:scale-110" style={{ backgroundColor: '#ca3433' }}>
+                <Phone className="text-white" size={30} />
+              </div>
+              <div className="text-white">
+                <p className="text-sm font-bold uppercase tracking-wider opacity-90">PHONE NUMBER:</p>
+                <p className="text-xl font-bold tracking-tight">+1 (516) 226-3114</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-white/5 shadow-lg transition-transform hover:scale-110" style={{ backgroundColor: '#ca3433' }}>
+                <MapPin className="text-white" size={30} />
+              </div>
+              <div className="text-white">
+                <p className="text-sm font-bold uppercase tracking-wider opacity-90">OUR LOCATION:</p>
+                <p className="text-xl font-bold tracking-tight">1360 Willis Ave., Albertson NY 11507</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-white/5 shadow-lg transition-transform hover:scale-110" style={{ backgroundColor: '#ca3433' }}>
+                <Mail className="text-white" size={30} />
+              </div>
+              <div className="text-white">
+                <p className="text-sm font-bold uppercase tracking-wider opacity-90">EMAIL ADDRESS:</p>
+                <a 
+                  href="mailto:info@exceedlearningcenter.com" 
+                  className="text-xl font-bold tracking-tight underline decoration-2 underline-offset-4 transition-colors hover:text-white/80"
+                >
+                  Email us directly [+]
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <img src={content.logoSrc} alt="Exceed Learning Center" className="mx-auto mb-4 h-12 object-contain opacity-80" />
+            <p className="text-sm text-white">{content.footerText}</p>
+          </div>
         </div>
       </footer>
     </div>
