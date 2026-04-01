@@ -1,7 +1,7 @@
 'use client';
 
 import Lenis from 'lenis';
-import { BookOpen, Calendar, X, Phone, MapPin, Mail } from 'lucide-react';
+import { BookOpen, Calendar, X, Phone, MapPin, Mail, ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { SiteContent } from '../types';
@@ -9,9 +9,9 @@ import type { SiteContent } from '../types';
 function hasMonthPassed(year: number, monthIndex: number) {
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonthStart = new Date(year, monthIndex + 1, 1);
+  const targetMonthStart = new Date(year, monthIndex, 1);
 
-  return nextMonthStart <= currentMonthStart;
+  return targetMonthStart < currentMonthStart;
 }
 
 type SiteLandingPageProps = {
@@ -21,6 +21,7 @@ type SiteLandingPageProps = {
 export function SiteLandingPage({ content }: SiteLandingPageProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -38,9 +39,18 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
 
     frameHandle = requestAnimationFrame(raf);
 
+    // Show/hide scroll to top button
+    function toggleScrollTop() {
+      setShowScrollTop(window.scrollY > 400);
+    }
+
+    window.addEventListener('scroll', toggleScrollTop);
+    toggleScrollTop(); // Check initial position
+
     return () => {
       cancelAnimationFrame(frameHandle);
       lenis.destroy();
+      window.removeEventListener('scroll', toggleScrollTop);
     };
   }, []);
 
@@ -70,6 +80,10 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
 
   const openRegistration = () => {
     window.open(content.registrationLink, '_blank', 'noopener,noreferrer');
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -294,6 +308,18 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
           </div>
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 flex items-center justify-center rounded-full bg-[#ca3433] p-4 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#af2d2c] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#ca3433] focus:ring-offset-2"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={24} />
+        </button>
+      )}
     </div>
   );
 }
