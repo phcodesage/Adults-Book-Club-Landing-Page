@@ -293,10 +293,10 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
               <div className="text-white">
                 <p className="text-sm font-bold uppercase tracking-wider opacity-90">EMAIL ADDRESS:</p>
                 <a 
-                  href="mailto:info@exceedlearningcenter.com" 
+                  href="mailto:programs@exceedlearningcenterny.com" 
                   className="text-xl font-bold tracking-tight underline decoration-2 underline-offset-4 transition-colors hover:text-white/80"
                 >
-                  Email us directly [+]
+                  programs@exceedlearningcenterny.com
                 </a>
               </div>
             </div>
