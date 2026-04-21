@@ -5,6 +5,7 @@ import { BookOpen, Calendar, X, Phone, MapPin, Mail, ArrowUp } from 'lucide-reac
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { SiteContent } from '../types';
+import PaymentModal, { calcCardPrice } from '../../app/PaymentModal';
 
 function hasMonthPassed(year: number, monthIndex: number) {
   const now = new Date();
@@ -22,6 +23,7 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -33,7 +35,10 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
     let frameHandle = 0;
 
     function raf(time: number) {
-      lenis.raf(time);
+      // Only run Lenis if no modals are open
+      if (!paymentModalOpen && !isImageModalOpen) {
+        lenis.raf(time);
+      }
       frameHandle = requestAnimationFrame(raf);
     }
 
@@ -52,8 +57,9 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
       lenis.destroy();
       window.removeEventListener('scroll', toggleScrollTop);
     };
-  }, []);
+  }, [paymentModalOpen, isImageModalOpen]);
 
+  // Disable scroll when image modal is open
   useEffect(() => {
     if (isImageModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -79,7 +85,8 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
   };
 
   const openRegistration = () => {
-    window.open(content.registrationLink, '_blank', 'noopener,noreferrer');
+    if (registrationClosed) return;
+    setPaymentModalOpen(true);
   };
 
   const scrollToTop = () => {
@@ -96,10 +103,18 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
         backgroundAttachment: 'fixed',
       }}
     >
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        courseName={content.siteName}
+        cashPrice={content.priceLabel}
+        cardPrice={calcCardPrice(content.priceLabel)}
+        stripeLink={content.registrationLink}
+      />
       <header className="py-8 shadow-premium" style={{ backgroundColor: '#ca3433' }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center gap-4">
-            <img src={content.logoSrc} alt="Exceed Learning Center" className="h-16 object-contain" />
+            <img src="/exceed-logo.png" alt="Exceed Learning Center" className="h-16 object-contain" />
             <div className="flex items-center justify-center gap-3">
               <BookOpen className="text-white" size={40} />
               <h1 className="text-center text-4xl font-bold tracking-wide text-shadow-soft text-white">
@@ -303,7 +318,7 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
           </div>
 
           <div className="text-center">
-            <img src={content.logoSrc} alt="Exceed Learning Center" className="mx-auto mb-4 h-12 object-contain opacity-80" />
+            <img src="/exceed-logo.png" alt="Exceed Learning Center" className="mx-auto mb-4 h-12 object-contain opacity-80" />
             <p className="text-sm text-white">{content.footerText}</p>
           </div>
         </div>

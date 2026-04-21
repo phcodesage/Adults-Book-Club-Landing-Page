@@ -14,13 +14,15 @@ import {
   Tablet,
   Trash2,
   Upload,
+  CreditCard,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { defaultSiteContent } from '../data/defaultSiteContent';
 import { MONTH_NAMES, createId, createMonthLabel, getFilenameFromPath } from '../lib/siteUtils';
 import type { AnalyticsVisit, BookSelection, MediaItem, SiteContent } from '../types';
+import PaymentsDashboard from './PaymentsDashboard';
 
-type AdminSection = 'analytics' | 'cms';
+type AdminSection = 'analytics' | 'cms' | 'payments';
 type CmsView = 'content' | 'media';
 
 type DbStatus = 'connected' | 'disconnected' | 'error' | 'loading';
@@ -460,6 +462,24 @@ export function AdminDashboard({
                   Media Library
                 </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveSection('payments')}
+                className={`rounded-3xl px-5 py-4 text-left transition ${
+                  activeSection === 'payments' ? 'bg-white text-slate-900 shadow-lg' : 'bg-white/10 hover:bg-white/20'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <CreditCard size={20} />
+                  <div>
+                    <p className="font-semibold">Payments</p>
+                    <p className={`text-xs ${activeSection === 'payments' ? 'text-slate-500' : 'text-white/70'}`}>
+                      Zelle payment management
+                    </p>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -604,7 +624,9 @@ export function AdminDashboard({
                   </div>
                 </section>
               </div>
-            ) : activeCmsView === 'content' ? (
+            ) : activeSection === 'payments' ? (
+              <PaymentsDashboard />
+            ) : activeSection === 'cms' && activeCmsView === 'content' ? (
               <div className="space-y-6">
                 <div className="sticky top-4 z-30 -mx-1 rounded-[2rem] bg-[#f7f3ef]/90 px-1 pb-2 pt-1 backdrop-blur">
                   <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
@@ -807,9 +829,8 @@ export function AdminDashboard({
                     ))}
                   </div>
                 </section>
-
               </div>
-            ) : (
+            ) : activeSection === 'cms' ? (
               <div className="space-y-6">
                 <div className="sticky top-4 z-30 -mx-1 rounded-[2rem] bg-[#f7f3ef]/90 px-1 pb-2 pt-1 backdrop-blur">
                   <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
@@ -950,6 +971,13 @@ export function AdminDashboard({
                     </div>
                   )}
                 </section>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Select a Section</h2>
+                  <p className="text-gray-600">Choose a section from the sidebar to get started.</p>
+                </div>
               </div>
             )}
           </div>

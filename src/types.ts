@@ -45,3 +45,21 @@ export type AnalyticsVisit = {
   country: string;
   visitedAt: string;
 };
+
+export type PaymentStatus = 'pending' | 'verified' | 'rejected';
+
+export type ZellePayment = {
+  _id?: string;
+  courseName: string;
+  customerName: string;
+  phoneNumber: string;
+  referenceNumber: string;
+  amount: string;
+  screenshotUrl?: string;
+  status: PaymentStatus;
+  submittedAt: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  rejectionReason?: string;
+  notes?: string;
+};

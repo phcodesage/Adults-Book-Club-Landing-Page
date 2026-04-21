@@ -6,10 +6,10 @@ const seededAt = '2026-01-01T00:00:00.000Z';
 export const defaultSiteContent: SiteContent = {
   siteName: 'ADULTS BOOK CLUB',
   sectionTitle: 'Adults',
-  logoSrc: '/Exceed-learning-center-1920w.png',
+  logoSrc: '/exceed-logo.png',
   heroImageSrc: '/adults-book-club.jpg',
   heroImageAlt: 'Adults reading books together',
-  priceLabel: '$50 Monthly',
+  priceLabel: '$160',
   registrationLink: 'https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00',
   registrationCtaLabel: 'Join Now',
   registrationClosedLabel: 'Registration Closed',
@@ -158,7 +158,7 @@ export const defaultMediaLibrary: MediaItem[] = [
   {
     id: 'media-logo',
     name: 'Exceed Learning Center Logo',
-    src: defaultSiteContent.logoSrc,
+    src: '/exceed-logo.png',
     type: 'image',
     origin: 'seeded',
     uploadedAt: seededAt,
