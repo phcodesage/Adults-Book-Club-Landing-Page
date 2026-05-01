@@ -29,3 +29,11 @@ export function createId(prefix: string) {
 export function getFilenameFromPath(path: string) {
   return path.split('/').filter(Boolean).pop() ?? path;
 }
+
+export function isBookExpired(year: number, monthIndex: number) {
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const targetMonthStart = new Date(year, monthIndex, 1);
+
+  return targetMonthStart < currentMonthStart;
+}

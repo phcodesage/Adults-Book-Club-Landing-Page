@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { defaultSiteContent } from '../data/defaultSiteContent';
-import { MONTH_NAMES, createId, createMonthLabel, getFilenameFromPath } from '../lib/siteUtils';
+import { MONTH_NAMES, createId, createMonthLabel, getFilenameFromPath, isBookExpired } from '../lib/siteUtils';
 import type { AnalyticsVisit, BookSelection, MediaItem, SiteContent } from '../types';
 import PaymentsDashboard from './PaymentsDashboard';
 
@@ -194,6 +194,79 @@ const dbStatusConfig: Record<DbStatus, { label: string; dot: string }> = {
   error:     { label: 'DB error',          dot: 'bg-rose-400' },
 };
 
+function BookEditorCard({
+  book,
+  updateBook,
+  updateBookMonth,
+  updateBookYear,
+  removeBook,
+  mediaLibrary,
+}: {
+  book: BookSelection;
+  updateBook: (id: string, patch: Partial<BookSelection>) => void;
+  updateBookMonth: (id: string, month: number) => void;
+  updateBookYear: (id: string, year: number) => void;
+  removeBook: (id: string) => void;
+  mediaLibrary: MediaItem[];
+}) {
+  return (
+    <div key={book.id} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+      <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{book.monthLabel}</p>
+          <h3 className="mt-2 text-2xl text-slate-900">{book.title}</h3>
+        </div>
+        <button
+          type="button"
+          onClick={() => removeBook(book.id)}
+          className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
+        >
+          <Trash2 size={16} />
+          Remove
+        </button>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <label className="block">
+          <span className="mb-2 block text-sm font-semibold text-slate-700">Month</span>
+          <select
+            value={String(book.monthIndex)}
+            onChange={(event) => updateBookMonth(book.id, Number(event.target.value))}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
+          >
+            {MONTH_NAMES.map((monthName, monthIndex) => (
+              <option key={monthName} value={monthIndex}>
+                {monthName}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <Field
+          label="Year"
+          value={String(book.year)}
+          onChange={(value) => updateBookYear(book.id, Number(value) || book.year)}
+          type="number"
+        />
+
+        <Field label="Title" value={book.title} onChange={(value) => updateBook(book.id, { title: value })} />
+        <Field label="Author" value={book.author} onChange={(value) => updateBook(book.id, { author: value })} />
+        <Field label="Schedule" value={book.schedule} onChange={(value) => updateBook(book.id, { schedule: value })} />
+        <Field label="Alt Text" value={book.imageAlt} onChange={(value) => updateBook(book.id, { imageAlt: value })} />
+      </div>
+
+      <div className="mt-5">
+        <ImageSourceField
+          label="Book Cover Source"
+          value={book.imageSrc}
+          onChange={(value) => updateBook(book.id, { imageSrc: value })}
+          mediaLibrary={mediaLibrary}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function AdminDashboard({
   content,
   mediaLibrary,
@@ -325,6 +398,19 @@ export function AdminDashboard({
     setDraft((currentDraft) => ({
       ...currentDraft,
       books: currentDraft.books.filter((book) => book.id !== bookId),
+    }));
+  };
+
+  const activeBooks = draft.books.filter((book) => !isBookExpired(book.year, book.monthIndex));
+  const pastBooks = draft.books.filter((book) => isBookExpired(book.year, book.monthIndex));
+
+  const prunePastBooks = () => {
+    if (!window.confirm(`Are you sure you want to remove all ${pastBooks.length} past books? This cannot be undone.`)) {
+      return;
+    }
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      books: activeBooks,
     }));
   };
 
@@ -747,86 +833,72 @@ export function AdminDashboard({
                       <FilePenLine size={20} className="text-[#ca3433]" />
                       <h2 className="text-2xl text-slate-900">Book cards</h2>
                     </div>
-                    <button
-                      type="button"
-                      onClick={addBook}
-                      className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
-                    >
-                      Add Book
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                      {pastBooks.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={prunePastBooks}
+                          className="rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
+                        >
+                          Prune {pastBooks.length} Past Book{pastBooks.length > 1 ? 's' : ''}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={addBook}
+                        className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
+                      >
+                        Add Book
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-5">
-                    {draft.books.map((book) => (
-                      <div key={book.id} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
-                        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                              {book.monthLabel}
-                            </p>
-                            <h3 className="mt-2 text-2xl text-slate-900">{book.title}</h3>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeBook(book.id)}
-                            className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
-                          >
-                            <Trash2 size={16} />
-                            Remove
-                          </button>
-                        </div>
-
-                        <div className="grid gap-5 xl:grid-cols-2">
-                          <label className="block">
-                            <span className="mb-2 block text-sm font-semibold text-slate-700">Month</span>
-                            <select
-                              value={String(book.monthIndex)}
-                              onChange={(event) => updateBookMonth(book.id, Number(event.target.value))}
-                              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
-                            >
-                              {MONTH_NAMES.map((monthName, monthIndex) => (
-                                <option key={monthName} value={monthIndex}>
-                                  {monthName}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-
-                          <Field
-                            label="Year"
-                            value={String(book.year)}
-                            onChange={(value) => updateBookYear(book.id, Number(value) || book.year)}
-                            type="number"
-                          />
-
-                          <Field label="Title" value={book.title} onChange={(value) => updateBook(book.id, { title: value })} />
-                          <Field
-                            label="Author"
-                            value={book.author}
-                            onChange={(value) => updateBook(book.id, { author: value })}
-                          />
-                          <Field
-                            label="Schedule"
-                            value={book.schedule}
-                            onChange={(value) => updateBook(book.id, { schedule: value })}
-                          />
-                          <Field
-                            label="Alt Text"
-                            value={book.imageAlt}
-                            onChange={(value) => updateBook(book.id, { imageAlt: value })}
-                          />
-                        </div>
-
-                        <div className="mt-5">
-                          <ImageSourceField
-                            label="Book Cover Source"
-                            value={book.imageSrc}
-                            onChange={(value) => updateBook(book.id, { imageSrc: value })}
+                  <div className="space-y-10">
+                    {/* Active Books */}
+                    <div className="space-y-5">
+                      <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        Active Books ({activeBooks.length})
+                      </h3>
+                      {activeBooks.length > 0 ? (
+                        activeBooks.map((book) => (
+                          <BookEditorCard 
+                            key={book.id} 
+                            book={book} 
+                            updateBook={updateBook}
+                            updateBookMonth={updateBookMonth}
+                            updateBookYear={updateBookYear}
+                            removeBook={removeBook}
                             mediaLibrary={mediaLibrary}
                           />
+                        ))
+                      ) : (
+                        <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">
+                          No active books. Add one to show on the site!
                         </div>
+                      )}
+                    </div>
+
+                    {/* Past Books */}
+                    {pastBooks.length > 0 && (
+                      <div className="space-y-5 opacity-75">
+                        <h3 className="text-lg font-bold text-slate-500 flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-slate-400"></span>
+                          Past / Expired Books ({pastBooks.length})
+                        </h3>
+                        {pastBooks.map((book) => (
+                          <BookEditorCard 
+                            key={book.id} 
+                            book={book} 
+                            updateBook={updateBook}
+                            updateBookMonth={updateBookMonth}
+                            updateBookYear={updateBookYear}
+                            removeBook={removeBook}
+                            mediaLibrary={mediaLibrary}
+                          />
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </section>
               </div>

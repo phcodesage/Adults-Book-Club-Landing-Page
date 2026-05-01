@@ -7,13 +7,7 @@ import { createPortal } from 'react-dom';
 import type { SiteContent } from '../types';
 import PaymentModal, { calcCardPrice } from '../../app/PaymentModal';
 
-function hasMonthPassed(year: number, monthIndex: number) {
-  const now = new Date();
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const targetMonthStart = new Date(year, monthIndex, 1);
-
-  return targetMonthStart < currentMonthStart;
-}
+import { isBookExpired } from '../lib/siteUtils';
 
 type SiteLandingPageProps = {
   content: SiteContent;
@@ -76,7 +70,8 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
     };
   }, [isImageModalOpen]);
 
-  const nextOpenMonth = content.books.find((selection) => !hasMonthPassed(selection.year, selection.monthIndex));
+  const activeBooks = content.books.filter((selection) => !isBookExpired(selection.year, selection.monthIndex));
+  const nextOpenMonth = activeBooks[0]; // First non-expired book
   const registrationClosed = !nextOpenMonth;
 
   const openImageModal = (imageSrc: string) => {
@@ -174,8 +169,8 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
             </div>
 
             <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {content.books.map((selection) => {
-                const isPastMonth = hasMonthPassed(selection.year, selection.monthIndex);
+              {activeBooks.map((selection) => {
+                const isPastMonth = false; // They are filtered out now, but keeping the variable for minimal template change if needed or for future use
 
                 return (
                   <div
