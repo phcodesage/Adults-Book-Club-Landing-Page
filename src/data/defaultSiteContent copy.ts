@@ -10,7 +10,7 @@ export const defaultSiteContent: SiteContent = {
   heroImageSrc: '/adults-book-club.jpg',
   heroImageAlt: 'Adults reading books together',
   priceLabel: '$50 Monthly',
-  registrationLink: 'https://buy.stripe.com/eVq00caOo1ZM1lD50ndfG00',
+  registrationLink: 'https://securelink-prod.valorpaytech.com:4430/?redirect=1&uid=f93fd1d1-5309-11f1-a8e1-12a0879a85b1',
   registrationCtaLabel: 'Join Now',
   registrationClosedLabel: 'Registration Closed',
   cardCtaLabel: 'Reserve Your Spot',
