@@ -255,6 +255,21 @@ function BookEditorCard({
         <Field label="Alt Text" value={book.imageAlt} onChange={(value) => updateBook(book.id, { imageAlt: value })} />
       </div>
 
+      <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <label className="flex flex-1 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            checked={book.isCompleted ?? false}
+            onChange={(e) => updateBook(book.id, { isCompleted: e.target.checked })}
+            className="h-5 w-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-bold leading-tight text-slate-700">Mark as Completed</p>
+            <p className="mt-0.5 text-[10px] text-slate-400">This will move the book to the &quot;Past Books We&apos;ve Read&quot; section.</p>
+          </div>
+        </label>
+      </div>
+
       <div className="mt-5">
         <ImageSourceField
           label="Book Cover Source"
@@ -401,8 +416,8 @@ export function AdminDashboard({
     }));
   };
 
-  const activeBooks = draft.books.filter((book) => !isBookExpired(book.year, book.monthIndex));
-  const pastBooks = draft.books.filter((book) => isBookExpired(book.year, book.monthIndex));
+  const activeBooks = draft.books.filter((book) => !book.isCompleted && !isBookExpired(book.year, book.monthIndex));
+  const pastBooks = draft.books.filter((book) => book.isCompleted || isBookExpired(book.year, book.monthIndex));
 
   const prunePastBooks = () => {
     if (!window.confirm(`Are you sure you want to remove all ${pastBooks.length} past books? This cannot be undone.`)) {

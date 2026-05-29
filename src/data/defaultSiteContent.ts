@@ -29,6 +29,7 @@ export const defaultSiteContent: SiteContent = {
       title: '"Mind - Gut Connection"',
       author: 'Dr. Emeran Mayer',
       schedule: 'Jan 12 & 26, 6pm',
+      isCompleted: true,
     },
     {
       id: 'book-2026-02',
@@ -40,6 +41,7 @@ export const defaultSiteContent: SiteContent = {
       title: '"The Book of Joy"',
       author: 'Dalai Lama & Desmond Tutu',
       schedule: 'Feb 9 & 23, 6pm',
+      isCompleted: true,
     },
     {
       id: 'book-2026-03',
@@ -51,6 +53,7 @@ export const defaultSiteContent: SiteContent = {
       title: '"Atlas of the Heart"',
       author: 'Brene Brown',
       schedule: 'Mar 9 & 30, 6pm',
+      isCompleted: true,
     },
     {
       id: 'book-2026-04',

@@ -70,8 +70,20 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
     };
   }, [isImageModalOpen]);
 
-  const activeBooks = content.books.filter((selection) => !isBookExpired(selection.year, selection.monthIndex));
-  const nextOpenMonth = activeBooks[0]; // First non-expired book
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const upcomingBooks = mounted
+    ? content.books.filter((selection) => !selection.isCompleted && !isBookExpired(selection.year, selection.monthIndex))
+    : content.books;
+
+  const pastBooks = mounted
+    ? content.books.filter((selection) => selection.isCompleted || isBookExpired(selection.year, selection.monthIndex))
+    : [];
+
+  const nextOpenMonth = upcomingBooks[0]; // First non-expired book
   const registrationClosed = !nextOpenMonth;
 
   const openImageModal = (imageSrc: string) => {
@@ -169,7 +181,7 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
             </div>
 
             <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {activeBooks.map((selection) => {
+              {upcomingBooks.map((selection) => {
                 const isPastMonth = false; // They are filtered out now, but keeping the variable for minimal template change if needed or for future use
 
                 return (
@@ -235,6 +247,78 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
                 );
               })}
             </div>
+
+            {pastBooks.length > 0 && (
+              <div className="mt-16">
+                <div className="mb-8 text-center border-t border-slate-100 pt-12">
+                  <div className="mb-3 flex items-center justify-center gap-3">
+                    <div className="h-0.5 w-8 bg-slate-300" />
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                      Already Read
+                    </span>
+                    <div className="h-0.5 w-8 bg-slate-300" />
+                  </div>
+                  <h2 className="mb-2 text-4xl font-bold" style={{ color: '#0e1f3e' }}>
+                    Past Books We've Read
+                  </h2>
+                  <p className="text-sm font-medium text-slate-500 max-w-md mx-auto">
+                    A look back at the titles our adult readers have explored together.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {pastBooks.map((selection) => {
+                    const isPastMonth = true;
+
+                    return (
+                      <div
+                        key={selection.id}
+                        className="overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 bg-slate-100/95 opacity-60 grayscale"
+                        style={{ borderColor: 'rgba(14, 31, 62, 0.28)' }}
+                      >
+                        <div className="relative">
+                          <img
+                            src={selection.imageSrc}
+                            alt={selection.imageAlt}
+                            className="h-64 w-full object-cover opacity-70 cursor-not-allowed"
+                            aria-disabled={isPastMonth}
+                          />
+                          <div
+                            className="absolute left-3 top-3 rounded-full px-3 py-1 text-sm font-bold text-white bg-slate-500"
+                          >
+                            {selection.monthLabel}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
+                            <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-800">
+                              Month Passed
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="mb-1 text-lg font-bold" style={{ color: '#0e1f3e' }}>
+                            {selection.title}
+                          </h3>
+                          <p className="mb-2 text-sm" style={{ color: '#666' }}>
+                            by {selection.author}
+                          </p>
+                          <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
+                            <Calendar size={16} style={{ color: '#ca3433' }} />
+                            <span>{selection.schedule}</span>
+                          </div>
+                          <button
+                            type="button"
+                            disabled={true}
+                            className="mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold cursor-not-allowed bg-slate-300 text-slate-600 shadow-none"
+                          >
+                            {content.cardClosedLabel}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div
               className="mt-10 rounded-lg p-6 text-center shadow-md"

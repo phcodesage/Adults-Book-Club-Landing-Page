@@ -8,6 +8,7 @@ export type BookSelection = {
   title: string;
   author: string;
   schedule: string;
+  isCompleted?: boolean;
 };
 
 export type SiteContent = {
