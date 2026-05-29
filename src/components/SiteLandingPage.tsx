@@ -76,11 +76,11 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
   }, []);
 
   const upcomingBooks = mounted
-    ? content.books.filter((selection) => !selection.isCompleted && !isBookExpired(selection.year, selection.monthIndex))
+    ? content.books.filter((selection) => !selection.isCompleted && !isBookExpired(selection.year, selection.monthIndex, selection.schedule))
     : content.books;
 
   const pastBooks = mounted
-    ? content.books.filter((selection) => selection.isCompleted || isBookExpired(selection.year, selection.monthIndex))
+    ? content.books.filter((selection) => selection.isCompleted || isBookExpired(selection.year, selection.monthIndex, selection.schedule))
     : [];
 
   const nextOpenMonth = upcomingBooks[0]; // First non-expired book

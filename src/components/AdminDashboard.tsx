@@ -416,8 +416,8 @@ export function AdminDashboard({
     }));
   };
 
-  const activeBooks = draft.books.filter((book) => !book.isCompleted && !isBookExpired(book.year, book.monthIndex));
-  const pastBooks = draft.books.filter((book) => book.isCompleted || isBookExpired(book.year, book.monthIndex));
+  const activeBooks = draft.books.filter((book) => !book.isCompleted && !isBookExpired(book.year, book.monthIndex, book.schedule));
+  const pastBooks = draft.books.filter((book) => book.isCompleted || isBookExpired(book.year, book.monthIndex, book.schedule));
 
   const prunePastBooks = () => {
     if (!window.confirm(`Are you sure you want to remove all ${pastBooks.length} past books? This cannot be undone.`)) {
