@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import type { SiteContent } from '../types';
 import PaymentModal, { calcCardPrice } from '../../app/PaymentModal';
 
-import { isBookExpired } from '../lib/siteUtils';
+import { isBookExpired, categorizeBooks } from '../lib/siteUtils';
 
 type SiteLandingPageProps = {
   content: SiteContent;
@@ -75,15 +75,8 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
     setMounted(true);
   }, []);
 
-  const upcomingBooks = mounted
-    ? content.books.filter((selection) => !selection.isCompleted && !isBookExpired(selection.year, selection.monthIndex, selection.schedule))
-    : content.books;
-
-  const pastBooks = mounted
-    ? content.books.filter((selection) => selection.isCompleted || isBookExpired(selection.year, selection.monthIndex, selection.schedule))
-    : [];
-
-  const nextOpenMonth = upcomingBooks[0]; // First non-expired book
+  const { currentMonth, nextMonth, future, past } = categorizeBooks(content.books, new Date(), mounted);
+  const nextOpenMonth = currentMonth[0] || nextMonth[0] || future[0];
   const registrationClosed = !nextOpenMonth;
 
   const openImageModal = (imageSrc: string) => {
@@ -98,6 +91,94 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderBookList = (books: typeof content.books, sectionTitle: string, subtitle: string, isPastMonth: boolean) => {
+    if (books.length === 0) return null;
+
+    return (
+      <div className="mt-16">
+        <div className="mb-8 text-center border-t border-slate-100 pt-12">
+          <div className="mb-3 flex items-center justify-center gap-3">
+            <div className="h-0.5 w-8 bg-slate-300" />
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+              {sectionTitle}
+            </span>
+            <div className="h-0.5 w-8 bg-slate-300" />
+          </div>
+          <h2 className="mb-2 text-4xl font-bold" style={{ color: '#0e1f3e' }}>
+            {sectionTitle}
+          </h2>
+          <p className="text-sm font-medium text-slate-500 max-w-md mx-auto">
+            {subtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {books.map((selection) => (
+            <div
+              key={selection.id}
+              className={`overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 ${
+                isPastMonth
+                  ? 'bg-slate-100/95 opacity-60 grayscale'
+                  : 'bg-white hover:-translate-y-1 hover:shadow-2xl'
+              }`}
+              style={{ borderColor: isPastMonth ? 'rgba(14, 31, 62, 0.28)' : '#0e1f3e' }}
+            >
+              <div className="relative">
+                <img
+                  src={selection.imageSrc}
+                  alt={selection.imageAlt}
+                  className={`h-64 w-full object-cover transition-opacity ${
+                    isPastMonth ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-90'
+                  }`}
+                  onClick={isPastMonth ? undefined : () => openImageModal(selection.imageSrc)}
+                  aria-disabled={isPastMonth}
+                />
+                <div
+                  className="absolute left-3 top-3 rounded-full px-3 py-1 text-sm font-bold text-white"
+                  style={{ backgroundColor: isPastMonth ? '#64748b' : '#ca3433' }}
+                >
+                  {selection.monthLabel}
+                </div>
+                {isPastMonth && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
+                    <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-800">
+                      Month Passed
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="mb-1 text-lg font-bold" style={{ color: '#0e1f3e' }}>
+                  {selection.title}
+                </h3>
+                <p className="mb-2 text-sm" style={{ color: '#666' }}>
+                  by {selection.author}
+                </p>
+                <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
+                  <Calendar size={16} style={{ color: '#ca3433' }} />
+                  <span>{selection.schedule}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={isPastMonth ? undefined : openRegistration}
+                  disabled={isPastMonth}
+                  className={`mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold transition-smooth ${
+                    isPastMonth
+                      ? 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
+                      : 'text-white shadow-premium hover:scale-[1.02] hover:shadow-premium-hover'
+                  }`}
+                  style={isPastMonth ? undefined : { backgroundColor: '#ca3433' }}
+                >
+                  {isPastMonth ? content.cardClosedLabel : content.cardCtaLabel}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -180,145 +261,10 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
               </button>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {upcomingBooks.map((selection) => {
-                const isPastMonth = false; // They are filtered out now, but keeping the variable for minimal template change if needed or for future use
-
-                return (
-                  <div
-                    key={selection.id}
-                    className={`overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 ${
-                      isPastMonth
-                        ? 'bg-slate-100/95 opacity-60 grayscale'
-                        : 'bg-white hover:-translate-y-1 hover:shadow-2xl'
-                    }`}
-                    style={{ borderColor: isPastMonth ? 'rgba(14, 31, 62, 0.28)' : '#0e1f3e' }}
-                  >
-                    <div className="relative">
-                      <img
-                        src={selection.imageSrc}
-                        alt={selection.imageAlt}
-                        className={`h-64 w-full object-cover transition-opacity ${
-                          isPastMonth ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-90'
-                        }`}
-                        onClick={isPastMonth ? undefined : () => openImageModal(selection.imageSrc)}
-                        aria-disabled={isPastMonth}
-                      />
-                      <div
-                        className="absolute left-3 top-3 rounded-full px-3 py-1 text-sm font-bold text-white"
-                        style={{ backgroundColor: isPastMonth ? '#64748b' : '#ca3433' }}
-                      >
-                        {selection.monthLabel}
-                      </div>
-                      {isPastMonth && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
-                          <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-800">
-                            Month Passed
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="mb-1 text-lg font-bold" style={{ color: '#0e1f3e' }}>
-                        {selection.title}
-                      </h3>
-                      <p className="mb-2 text-sm" style={{ color: '#666' }}>
-                        by {selection.author}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                        <Calendar size={16} style={{ color: '#ca3433' }} />
-                        <span>{selection.schedule}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={openRegistration}
-                        disabled={isPastMonth}
-                        className={`mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold transition-smooth ${
-                          isPastMonth
-                            ? 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
-                            : 'text-white shadow-premium hover:scale-[1.02] hover:shadow-premium-hover'
-                        }`}
-                        style={isPastMonth ? undefined : { backgroundColor: '#ca3433' }}
-                      >
-                        {isPastMonth ? content.cardClosedLabel : content.cardCtaLabel}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {pastBooks.length > 0 && (
-              <div className="mt-16">
-                <div className="mb-8 text-center border-t border-slate-100 pt-12">
-                  <div className="mb-3 flex items-center justify-center gap-3">
-                    <div className="h-0.5 w-8 bg-slate-300" />
-                    <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                      Already Read
-                    </span>
-                    <div className="h-0.5 w-8 bg-slate-300" />
-                  </div>
-                  <h2 className="mb-2 text-4xl font-bold" style={{ color: '#0e1f3e' }}>
-                    Past Books We've Read
-                  </h2>
-                  <p className="text-sm font-medium text-slate-500 max-w-md mx-auto">
-                    A look back at the titles our adult readers have explored together.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {pastBooks.map((selection) => {
-                    const isPastMonth = true;
-
-                    return (
-                      <div
-                        key={selection.id}
-                        className="overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 bg-slate-100/95 opacity-60 grayscale"
-                        style={{ borderColor: 'rgba(14, 31, 62, 0.28)' }}
-                      >
-                        <div className="relative">
-                          <img
-                            src={selection.imageSrc}
-                            alt={selection.imageAlt}
-                            className="h-64 w-full object-cover opacity-70 cursor-not-allowed"
-                            aria-disabled={isPastMonth}
-                          />
-                          <div
-                            className="absolute left-3 top-3 rounded-full px-3 py-1 text-sm font-bold text-white bg-slate-500"
-                          >
-                            {selection.monthLabel}
-                          </div>
-                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
-                            <span className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-800">
-                              Month Passed
-                            </span>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="mb-1 text-lg font-bold" style={{ color: '#0e1f3e' }}>
-                            {selection.title}
-                          </h3>
-                          <p className="mb-2 text-sm" style={{ color: '#666' }}>
-                            by {selection.author}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm" style={{ color: '#0e1f3e' }}>
-                            <Calendar size={16} style={{ color: '#ca3433' }} />
-                            <span>{selection.schedule}</span>
-                          </div>
-                          <button
-                            type="button"
-                            disabled={true}
-                            className="mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold cursor-not-allowed bg-slate-300 text-slate-600 shadow-none"
-                          >
-                            {content.cardClosedLabel}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {renderBookList(currentMonth, "This Month's Book", "Our current read — join the discussion!", false)}
+            {renderBookList(nextMonth, "Next Month's Book", "Get a head start on next month's read.", false)}
+            {renderBookList(future, "Future Reading", "A look ahead at the titles we'll be exploring together.", false)}
+            {renderBookList(past, "Previously Read", "A look back at the titles our adult readers have explored together.", true)}
 
             <div
               className="mt-10 rounded-lg p-6 text-center shadow-md"

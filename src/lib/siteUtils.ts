@@ -56,3 +56,38 @@ export function isBookExpired(year: number, monthIndex: number, schedule?: strin
 
   return false;
 }
+
+export function categorizeBooks(books: import('../types').BookSelection[], currentDate: Date, mounted: boolean) {
+  if (!mounted) return { currentMonth: [], nextMonth: [], future: books, past: [] };
+
+  const currentYear = currentDate.getFullYear();
+  const currentMonthIndex = currentDate.getMonth();
+
+  let nextYear = currentYear;
+  let nextMonthIndex = currentMonthIndex + 1;
+  if (nextMonthIndex > 11) {
+    nextMonthIndex = 0;
+    nextYear++;
+  }
+
+  const currentMonth: import('../types').BookSelection[] = [];
+  const nextMonth: import('../types').BookSelection[] = [];
+  const future: import('../types').BookSelection[] = [];
+  const past: import('../types').BookSelection[] = [];
+
+  for (const book of books) {
+    const isPast = book.isCompleted || isBookExpired(book.year, book.monthIndex, book.schedule);
+
+    if (book.year === currentYear && book.monthIndex === currentMonthIndex) {
+      currentMonth.push(book);
+    } else if (book.year === nextYear && book.monthIndex === nextMonthIndex) {
+      nextMonth.push(book);
+    } else if (isPast) {
+      past.push(book);
+    } else {
+      future.push(book);
+    }
+  }
+
+  return { currentMonth, nextMonth, future, past };
+}
