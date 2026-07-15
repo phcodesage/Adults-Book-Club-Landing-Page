@@ -18,6 +18,7 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
   const [modalImageSrc, setModalImageSrc] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [showPastBooks, setShowPastBooks] = useState(false);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -264,7 +265,61 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
             {renderBookList(currentMonth, "This Month's Book", "Our current read — join the discussion!", false)}
             {renderBookList(nextMonth, "Next Month's Book", "Get a head start on next month's read.", false)}
             {renderBookList(future, "Future Reading", "A look ahead at the titles we'll be exploring together.", false)}
-            {renderBookList(past, "Previously Read", "A look back at the titles our adult readers have explored together.", true)}
+
+            {/* Previously Read (Toggleable, List view, no images) */}
+            {past.length > 0 && (
+              <div className="mt-16 text-center">
+                <div className="mb-8 flex flex-col items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPastBooks(!showPastBooks)}
+                    className="inline-flex items-center gap-3 rounded-full bg-white border border-slate-200 hover:border-[#ca3433] px-8 py-4 text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                    style={{ color: '#0e1f3e' }}
+                  >
+                    <BookOpen className="h-4 w-4 text-[#ca3433]" />
+                    <span>{showPastBooks ? 'Hide Past Books Read' : 'View Past Books Read'}</span>
+                  </button>
+                </div>
+
+                {showPastBooks && (
+                  <div className="animate-fadeIn mx-auto max-w-4xl text-left">
+                    <div className="mb-8 text-center">
+                      <h2 className="text-2xl font-bold" style={{ color: '#0e1f3e' }}>
+                        Previously Read Books
+                      </h2>
+                      <p className="mt-2 text-sm text-slate-500">
+                        A list of the titles our adult readers have completed.
+                      </p>
+                    </div>
+                    <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-lg divide-y divide-slate-100">
+                      {past.map((book) => (
+                        <div
+                          key={book.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-slate-50/50 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                              {book.monthLabel}
+                            </span>
+                            <h4 className="mt-2 text-lg font-bold" style={{ color: '#0e1f3e' }}>
+                              {book.title}
+                            </h4>
+                            {book.author && (
+                              <p className="text-sm text-slate-500">
+                                by {book.author}
+                              </p>
+                            )}
+                          </div>
+                          <div className="mt-4 sm:mt-0 text-left sm:text-right text-xs font-semibold text-slate-400">
+                            <div>Schedule: {book.schedule}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div
               className="mt-10 rounded-lg p-6 text-center shadow-md"
