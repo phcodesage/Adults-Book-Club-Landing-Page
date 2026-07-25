@@ -11,7 +11,7 @@ export const defaultSiteContent: SiteContent = {
   heroImageAlt: 'Adults reading books together',
   priceLabel: '$160',
   registrationLink: 'https://securelink-prod.valorpaytech.com:4430/?redirect=1&uid=f93fd1d1-5309-11f1-a8e1-12a0879a85b1',
-  registrationCtaLabel: 'Join Now',
+  registrationCtaLabel: 'Enroll Now',
   registrationClosedLabel: 'Registration Closed',
   cardCtaLabel: 'Reserve Your Spot',
   cardClosedLabel: 'Registration Closed',

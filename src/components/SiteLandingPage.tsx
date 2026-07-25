@@ -210,6 +210,18 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
                 {content.siteName}
               </h1>
             </div>
+            <button
+              type="button"
+              onClick={openRegistration}
+              disabled={registrationClosed}
+              className={`inline-flex rounded-lg px-8 py-3 text-lg font-semibold transition-smooth ${
+                registrationClosed
+                  ? 'cursor-not-allowed bg-white/40 text-white/70 shadow-none'
+                  : 'bg-white text-[#ca3433] shadow-premium hover:scale-105 hover:shadow-premium-hover'
+              }`}
+            >
+              {registrationClosed ? content.registrationClosedLabel : (content.registrationCtaLabel || 'Enroll Now')}
+            </button>
           </div>
         </div>
       </header>
@@ -258,7 +270,7 @@ export function SiteLandingPage({ content }: SiteLandingPageProps) {
                 }`}
                 style={registrationClosed ? undefined : { backgroundColor: '#ca3433' }}
               >
-                {registrationClosed ? content.registrationClosedLabel : content.registrationCtaLabel}
+                {registrationClosed ? content.registrationClosedLabel : (content.cardCtaLabel || 'Reserve Your Spot')}
               </button>
             </div>
 
